@@ -3,13 +3,6 @@ from datetime import datetime
 import os
 
 #=========================================#
-#         Ensure directory exists         #
-#=========================================#
-def ensure_directory_exists(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-#=========================================#
 #            Processing Video             #
 #    for callback wav2lip and whisperx    #
 #=========================================#
@@ -23,11 +16,12 @@ def process_video(video, audio):
 
     # Ensure the directory exists
     output_dir = "processed_video"
-    ensure_directory_exists(output_dir)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     
     # Generate a timestamped filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_filename = f"processed_video_{timestamp}.mp4"
+    output_filename = f"{timestamp}.mp4"
     output_filepath = os.path.join(output_dir, output_filename)
     
     # later will call code here for the lipsync and dubbing
@@ -40,18 +34,28 @@ def process_video(video, audio):
 
 
 #=========================================#
-#    Choosing the list of output video    #
+#    Showing all the processed video      #
 #=========================================#
-def get_output_video():
-    return [
-        "video.mp4",
-        "video.avi",
-        "video.mkv",
-        "video.flv",
-        "video.wmv",
-        "video.mov",
-        "video.webm",
-    ]
+def get_all_processed_videos():
+        output_dir = "processed_video"
+        processed_videos = [os.path.join(output_dir, f) for f in os.listdir(output_dir) if f.endswith('.mp4')]
+
+        # Ensure the list has exactly 10 elements
+        update_show = processed_videos + [None] * (10 - len(processed_videos))
+        
+        # Update the btn_list with video paths
+        updates = []
+        for video_path in update_show:
+            if video_path is not None:
+                filename = os.path.basename(video_path)
+                updates.append(gr.update(value=video_path, label=filename, visible=True))
+            else:
+                updates.append(gr.update(visible=False))
+        
+        return updates
+
+video_list = []
+
 
 #=========================================#
 #            Custom Interface             #
@@ -116,12 +120,20 @@ with gr.Blocks(theme = theme, title = title, css = css) as create_interface:
                     sources = "upload"),
         ],
         outputs = gr.Video(label = "Processed Video",
-                        show_download_button = True),
+                        show_download_button = True, autoplay = False),
 
         # #All the upload video and audio files will be stored in the "file_tracking" directory
         allow_flagging = "never",
         # flagging_dir = "file_tracking",
     )
+
+    with gr.Row():
+        for i in range(7):
+            btn = gr.Video(visible=False)
+            video_list.append(btn)
+
+    run_button = gr.Button("Show All Output")
+    run_button.click(get_all_processed_videos, None, video_list)
 
 
 #=========================================#
