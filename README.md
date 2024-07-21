@@ -10,4 +10,5 @@ $~~$ `pip install -r requirements.txt`
 $~~$ `python test1.py`
 
 3) $~$ **To open the local host** <br />
-$~~$ click the link of the local URL given
+$~~$ click the link of the local URL given to be directed to the local server
+
