@@ -77,6 +77,7 @@ theme = custom_block["theme"]
 title = custom_block["title"]
 css = custom_block["css"]
 
+# with gr.Blocks(theme = theme, title = title, css = css) as create_interface:
 with gr.Blocks(theme = theme, title = title, css = css) as demo:
 
     # Page header
